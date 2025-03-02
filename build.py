@@ -4,6 +4,7 @@ import zipfile
 import urllib.request
 import shutil
 from enum import Enum
+import json
 
 class OSType(Enum):
     WINDOWS = 1,
@@ -17,6 +18,7 @@ class BuildTask:
         self.releaseName = releaseName
 
 def downloadFile(url, outputFileName):
+    print(f"Downloading {url}")
     req = urllib.request.Request(url)
     with urllib.request.urlopen(url) as u:
         with open(outputFileName, "wb") as f:
@@ -34,22 +36,36 @@ def call(args, **kwargs):
         # don't print args here to avoid leaking secrets
         raise Exception(f"ERROR: The last call() failed with retcode {retcode}")
 
+# Determine the latest file prefix for the repo, e.g. "ponscr-4.0.0-"
+latest_file_prefix = None
+tags_url = "https://api.github.com/repos/07th-mod/ponscripter-fork/tags"
+req = urllib.request.Request(tags_url)
+with urllib.request.urlopen(tags_url) as u:
+    j = json.loads(u.read())
+
+    latest_tag_info = j[0]
+
+    latest_tag_name = latest_tag_info['name']
+    latest_file_prefix = f"ponscr-{latest_tag_name.lstrip("v")}-"
+
+
 print(">>> Running initial setup...")
 ponscripterForkLatestReleaseURL = "https://github.com/07th-mod/ponscripter-fork/releases/latest/download/"
 
 buildTasks = [
-    BuildTask("ponscr-windows.zip", OSType.WINDOWS, "windows"),
-    BuildTask("ponscr-windows-steam.zip", OSType.WINDOWS, "windows-steam"),
-    BuildTask("ponscr-osx.zip", OSType.MAC, "osx"),
-    BuildTask("ponscr-osx-steam.zip", OSType.MAC, "osx-steam"),
-    BuildTask("ponscr-linux.zip", OSType.LINUX, "linux"),
-    BuildTask("ponscr-linux-steam.zip", OSType.LINUX, "linux-steam"),
-    BuildTask("ponscr-linux-nodep.zip", OSType.LINUX, "linux-nodep"),
+    # Note: names do not include repo url or prefix
+    BuildTask("windows.zip", OSType.WINDOWS, "windows"),
+    BuildTask("windows-steam.zip", OSType.WINDOWS, "windows-steam"),
+    BuildTask("osx.zip", OSType.MAC, "osx"),
+    BuildTask("osx-steam.zip", OSType.MAC, "osx-steam"),
+    BuildTask("linux.zip", OSType.LINUX, "linux"),
+    BuildTask("linux-steam.zip", OSType.LINUX, "linux-steam"),
+    BuildTask("linux-nodep.zip", OSType.LINUX, "linux-nodep"),
 ]
 
 resourceHackerZip = "resource_hacker.zip"
 resourceHackerExeName = "ResourceHacker.exe"
-downloadFile("https://www.angusj.com/resourcehacker/resource_hacker.zip", "resource_hacker.zip")
+downloadFile("https://github.com/07th-mod/ponscripter-umineko/releases/download/v0.0.0/resource_hacker.zip", "resource_hacker.zip")
 with zipfile.ZipFile(resourceHackerZip, 'r') as zip_ref:
     zip_ref.extract(resourceHackerExeName)
 
@@ -58,7 +74,7 @@ downloadFile("https://github.com/07th-mod/ponscripter-umineko/releases/download/
 
 for task in buildTasks:
     # Download the file
-    downloadURL = ponscripterForkLatestReleaseURL + task.downloadFileName
+    downloadURL = f"{ponscripterForkLatestReleaseURL}{latest_file_prefix}{task.downloadFileName}"
     downloadFile(downloadURL, task.downloadFileName)
 
     # Extract the archive
