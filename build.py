@@ -46,7 +46,9 @@ with urllib.request.urlopen(tags_url) as u:
     latest_tag_info = j[0]
 
     latest_tag_name = latest_tag_info['name']
-    latest_file_prefix = f"ponscr-{latest_tag_name.lstrip("v")}-"
+    latest_file_prefix = f'ponscr-{latest_tag_name.lstrip("v")}-'
+
+print(f"Latest ponscripter-fork prefix is [{latest_file_prefix}]")
 
 
 print(">>> Running initial setup...")
