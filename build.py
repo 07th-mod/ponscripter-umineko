@@ -49,7 +49,7 @@ buildTasks = [
 
 resourceHackerZip = "resource_hacker.zip"
 resourceHackerExeName = "ResourceHacker.exe"
-downloadFile("http://www.angusj.com/resourcehacker/resource_hacker.zip", "resource_hacker.zip")
+downloadFile("https://www.angusj.com/resourcehacker/resource_hacker.zip", "resource_hacker.zip")
 with zipfile.ZipFile(resourceHackerZip, 'r') as zip_ref:
     zip_ref.extract(resourceHackerExeName)
 
