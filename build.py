@@ -52,7 +52,7 @@ print(f"Latest ponscripter-fork prefix is [{latest_file_prefix}]")
 
 
 print(">>> Running initial setup...")
-ponscripterForkLatestReleaseURL = "https://github.com/07th-mod/ponscripter-fork/releases/latest/download/"
+ponscripterForkLatestReleaseURL = "https://github.com/07th-mod/ponscripter-fork/releases/download/v4.0.1/"
 
 buildTasks = [
     # Note: names do not include repo url or prefix
